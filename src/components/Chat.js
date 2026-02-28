@@ -7,7 +7,7 @@ import useAxios from "../hooks/useAxios";
 import { getAllUsers } from "../api/api.user";
 import { getAllMessages } from "../api/api.messages";
 import { useAuthContext } from "../context/AuthContext";
-const socket = io("http://localhost:5001");
+const socket = io("https://wechat-middlewire.vercel.app");
 export const Chat = ({ user }) => {
   const [users, setUsers] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
