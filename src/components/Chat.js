@@ -67,7 +67,7 @@ export const Chat = ({ user }) => {
       socket.off("user-typing-ended");
       socket.off("message_status_update");
     };
-  }, [currentChat]);
+  }, [currentChat, user]);
 
   const fetchMessages = async (receiver) => {
     try {

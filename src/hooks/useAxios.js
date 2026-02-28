@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const useAxios = (apiResult) => {
   const [loading, setLoading] = useState(true);
