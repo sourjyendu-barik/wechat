@@ -7,8 +7,16 @@ import useAxios from "../hooks/useAxios";
 import { getAllUsers } from "../api/api.user";
 import { getAllMessages } from "../api/api.messages";
 import { useAuthContext } from "../context/AuthContext";
-const socket = io("https://wechat-middlewire.vercel.app");
+
 export const Chat = ({ user }) => {
+  const socket = useRef();
+
+  useEffect(() => {
+    socket.current = io("https://wechat-middlewire.vercel.app");
+    return () => {
+      socket.current.disconnect();
+    };
+  }, []);
   const [users, setUsers] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -24,37 +32,42 @@ export const Chat = ({ user }) => {
     }
   }, [data]);
   useEffect(() => {
-    socket.emit("user_logged_in", user);
+    if (socket.current) {
+      socket.current.emit("user_logged_in", user);
+    }
   }, [user]);
 
   useEffect(() => {
     // Fetch all users excluding the current user
+    if (!socket.current) return;
 
     // Listen for incoming messages
 
-    socket.on("receive_message", (data) => {
+    socket.current.on("receive_message", (data) => {
       if (data.sender === currentChat || data.receiver === currentChat) {
         setMessages((prev) => [...prev, data]);
 
         if (data.receiver === user) {
-          socket.emit("message_delivered", {
+          socket.current.emit("message_delivered", {
             messageId: data._id,
+            sender: data.sender,
+            receiver: data.receiver,
           });
         }
       }
     });
-    socket.on("user-typing", ({ sender }) => {
+    socket.current.on("user-typing", ({ sender }) => {
       if (sender === currentChat) {
         setTypingUser(sender);
       }
     });
 
-    socket.on("user-typing-ended", ({ sender }) => {
+    socket.current.on("user-typing-ended", ({ sender }) => {
       if (sender === currentChat) {
         setTypingUser(null);
       }
     });
-    socket.on("message_status_update", (data) => {
+    socket.current.on("message_status_update", (data) => {
       setMessages((prev) =>
         prev.map((msg) =>
           msg._id === data.messageId ? { ...msg, status: data.status } : msg,
@@ -62,10 +75,10 @@ export const Chat = ({ user }) => {
       );
     });
     return () => {
-      socket.off("receive_message");
-      socket.off("user-typing");
-      socket.off("user-typing-ended");
-      socket.off("message_status_update");
+      socket.current.off("receive_message");
+      socket.current.off("user-typing");
+      socket.current.off("user-typing-ended");
+      socket.current.off("message_status_update");
     };
   }, [currentChat, user]);
 
@@ -91,7 +104,7 @@ export const Chat = ({ user }) => {
       receiver: currentChat,
       message: currentMessage,
     };
-    socket.emit("send_message", messageData);
+    socket.current.emit("send_message", messageData);
     // setMessages((prev) => [...prev, messageData]);
     setCurrentMessage("");
   };
@@ -101,7 +114,7 @@ export const Chat = ({ user }) => {
     setCurrentMessage(value);
     if (!currentChat) return;
 
-    socket.emit("typing", {
+    socket.current.emit("typing", {
       sender: user,
       receiver: currentChat,
     });
@@ -109,7 +122,7 @@ export const Chat = ({ user }) => {
       clearTimeout(typingTimeoutRef.current);
     }
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("typing-ended", {
+      socket.current.emit("typing-ended", {
         sender: user,
         receiver: currentChat,
       });
