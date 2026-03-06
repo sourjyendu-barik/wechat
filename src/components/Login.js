@@ -42,7 +42,7 @@ const Login = () => {
 
       updateUser(data?.username, data?.accessToken);
     } catch (error) {
-      console.error(error.response?.data?.message || "Error logging in");
+      console.error("LOGIN ERROR:", error);
     }
   };
 
