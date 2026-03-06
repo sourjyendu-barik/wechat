@@ -9,7 +9,9 @@ export const setApiToken = (token) => {
 
 //the main api or root api
 const api = axios.create({
-  baseURL: "https://wechat-middlewire.vercel.app/api/",
+  // baseURL: "https://wechat-middlewire.vercel.app/api/",
+  // baseURL: "http://localhost:5001/api/",
+  baseURL: "https://wechat-middlewire.onrender.com/api/",
   timeout: 10000,
   withCredentials: true, //allows browser to send and receive cookie
   headers: {
@@ -54,7 +56,9 @@ api.interceptors.response.use(
       try {
         //if accessToken expire->
         const res = await axios.post(
-          "https://wechat-middlewire.vercel.app/api/auth/refresh",
+          // "https://wechat-middlewire.vercel.app/api/auth/refresh",
+          // "http://localhost:5001/api/auth/refresh",
+          "https://wechat-middlewire.onrender.com/api/auth/refresh",
           {},
           { withCredentials: true },
         );
@@ -68,7 +72,9 @@ api.interceptors.response.use(
       } catch (error) {
         //refresh failed then logout user
         await axios.post(
-          "https://wechat-middlewire.vercel.app/api/auth/logout",
+          // "https://wechat-middlewire.vercel.app/api/auth/logout",
+          // "http://localhost:5001/api/auth/logout",
+          "https://wechat-middlewire.onrender.com/api/auth/logout",
           {},
           { withCredentials: true },
         );

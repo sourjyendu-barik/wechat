@@ -9,10 +9,19 @@ import { getAllMessages } from "../api/api.messages";
 import { useAuthContext } from "../context/AuthContext";
 
 export const Chat = ({ user }) => {
-  const socket = useRef();
+  const socket = useRef(null);
 
   useEffect(() => {
-    socket.current = io("https://wechat-middlewire.vercel.app");
+    // socket.current = io("https://wechat-middlewire.vercel.app", {
+    //   transports: ["websocket"],
+    // });
+    // socket.current = io("http://localhost:5001", {
+    //   transports: ["websocket"], // Forces websocket to avoid CORS polling issues
+    // });
+    //https://wechat-middlewire.onrender.com/api/
+    socket.current = io("https://wechat-middlewire.onrender.com", {
+      transports: ["websocket"], // Forces websocket to avoid CORS polling issues
+    });
     return () => {
       socket.current.disconnect();
     };
@@ -56,14 +65,24 @@ export const Chat = ({ user }) => {
         }
       }
     });
-    socket.current.on("user-typing", ({ sender }) => {
-      if (sender === currentChat) {
+    // socket.current.on("user-typing", ({ sender }) => {
+    //   if (sender === currentChat) {
+    //     setTypingUser(sender);
+    //   }
+    // });
+
+    // socket.current.on("user-typing-ended", ({ sender }) => {
+    //   if (sender === currentChat) {
+    //     setTypingUser(null);
+    //   }
+    // });
+    socket.current.on("user-typing", ({ sender, receiver }) => {
+      if (sender === currentChat && receiver === user) {
         setTypingUser(sender);
       }
     });
-
-    socket.current.on("user-typing-ended", ({ sender }) => {
-      if (sender === currentChat) {
+    socket.current.on("user-typing-ended", ({ sender, receiver }) => {
+      if (sender === currentChat && receiver === user) {
         setTypingUser(null);
       }
     });
@@ -97,7 +116,7 @@ export const Chat = ({ user }) => {
   };
 
   const sendMessage = () => {
-    if (!currentChat || !currentMessage.trim()) return;
+    if (!socket.current || !currentChat || !currentMessage.trim()) return;
 
     const messageData = {
       sender: user,
@@ -114,24 +133,45 @@ export const Chat = ({ user }) => {
     setCurrentMessage(value);
     if (!currentChat) return;
 
-    socket.current.emit("typing", {
-      sender: user,
-      receiver: currentChat,
-    });
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.current.emit("typing-ended", {
+    // socket.current.emit("typing", {
+    //   sender: user,
+    //   receiver: currentChat,
+    // });
+    if (socket.current) {
+      socket.current.emit("typing", {
         sender: user,
         receiver: currentChat,
       });
-    }, 1000);
+    }
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    // typingTimeoutRef.current = setTimeout(() => {
+    //   socket.current.emit("typing-ended", {
+    //     sender: user,
+    //     receiver: currentChat,
+    //   });
+    // }, 1000);
+    typingTimeoutRef.current = setTimeout(() => {
+      if (socket.current) {
+        socket.current.emit("typing-ended", {
+          sender: user,
+          receiver: currentChat,
+        });
+      }
+    }, 1500);
   };
   const onEmojiClick = (emojiData) => {
     setCurrentMessage((prev) => prev + emojiData.emoji);
     setPickEmoji(false);
   };
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
   return (
     <div className="chat-container">
       <h2>Welcome, {user}</h2>

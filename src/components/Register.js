@@ -10,8 +10,19 @@ const Register = () => {
 
   const handleRegister = async () => {
     try {
+      // const { data } = await axios.post(
+      //   "https://wechat-middlewire.vercel.app/api/auth/register",
+      //   {
+      //     username,
+      //     password,
+      //   },
+      //   {
+      //     withCredentials: true, // This tells the browser to adopt the cookie
+      //   },
+      // );
+      //https://wechat-middlewire.onrender.com/api
       const { data } = await axios.post(
-        "https://wechat-middlewire.vercel.app/api/auth/register",
+        "https://wechat-middlewire.onrender.com/api/auth/register",
         {
           username,
           password,
@@ -20,7 +31,6 @@ const Register = () => {
           withCredentials: true, // This tells the browser to adopt the cookie
         },
       );
-
       setRegistrationSuccess(
         "You are registered successfully. Proceed to login.",
       );

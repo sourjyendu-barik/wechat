@@ -17,7 +17,9 @@ const AuthContextProvider = ({ children }) => {
   const logout = async () => {
     try {
       await axios.post(
-        "https://wechat-middlewire.vercel.app/api/auth/logout",
+        //"https://wechat-middlewire.vercel.app/api/auth/logout",
+        //"https://localhost:5001/api/auth/logout",
+        "https://wechat-middlewire.onrender.com/api/auth/logout",
         {},
         { withCredentials: true },
       );
@@ -35,7 +37,9 @@ const AuthContextProvider = ({ children }) => {
     const checkSession = async () => {
       try {
         const res = await axios.post(
-          "https://wechat-middlewire.vercel.app/api/auth/refresh",
+          // "https://wechat-middlewire.vercel.app/api/auth/refresh",
+          // "https://localhost:5001/api/auth/refresh",
+          "https://wechat-middlewire.onrender.com/api/auth/refresh",
           {},
           { withCredentials: true },
         );

@@ -7,8 +7,30 @@ const Login = () => {
   const { updateUser } = useAuthContext();
   const handleLogin = async () => {
     try {
+      // const { data } = await axios.post(
+      //   "https://wechat-middlewire.vercel.app/api/auth/login",
+      //   {
+      //     username,
+      //     password,
+      //   },
+      //   {
+      //     withCredentials: true, // This tells the browser to adopt the cookie
+      //   },
+      // );
+
+      // const { data } = await axios.post(
+      //   "http://localhost:5001/api/auth/login",
+      //   {
+      //     username,
+      //     password,
+      //   },
+      //   {
+      //     withCredentials: true, // This tells the browser to adopt the cookie
+      //   },
+      // );
+
       const { data } = await axios.post(
-        "https://wechat-middlewire.vercel.app/api/auth/login",
+        "https://wechat-middlewire.onrender.com/api/auth/login",
         {
           username,
           password,
